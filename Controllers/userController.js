@@ -1,13 +1,23 @@
 import { json } from "express";
 import usuarios from "../database.js";
 
-function getAll(req, res) {
-    res.json(usuarios);
-    console.log(JSON.stringify({
-        action: "get",
-        route: "/usuarios"
-    }));
+function login(req, res) {
+    const { correo, contrasena } = req.body;
+
+    if (!correo || !contrasena) {
+        return res.status(400).json({ error: "Verifique las credenciales, alguno de los campos es incorrecto" });
+    }
+
+    const usuario = usuarios.find(u => u.correo === correo && u.contrasena === contrasena);
+    if (!usuario) {
+        return res.status(404).json({ error: "Datos incorrectos." });
+    }
+
+    res.status(200).json({
+        status: `¡Bienvenido(a) ${usuario.correo}, inicio de sesión exitoso!`
+    });
 }
+
 function createUsuarios(req, res) {
     if (!req.body.correo || !req.body.contrasena) {
         return res.status(400).json({ error: "Faltan datos obligatorios: correo o contraseña" });
@@ -26,4 +36,7 @@ function createUsuarios(req, res) {
 }
 
 
-export { getAll, createUsuarios };
+export { 
+    createUsuarios,
+    login
+}
